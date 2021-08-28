@@ -1,3 +1,10 @@
+"""
+Entry point for validating a model on a data set in a k-fold loop. Creates a json file with the results and metrics.
+For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
+
+Example:
+    $ python validator.py C:\\comment_data.txt C:\\result.json
+"""
 import argparse
 import logging
 import os.path
@@ -31,43 +38,56 @@ models = {
     ,
     'j48': J48Classifier
 }
-
-HOME = os.path.dirname(__file__)
-
+"""Dictionary of all implemented Classifiers' constructors"""
 
 
-# returns consensus of multiple models' predictions
 def get_common_prediction(predictions):
+    """
+    Returns prediction with highest probability
+    """
     return max(predictions, key=predictions.get)
 
 
 def k_fold_validation(d_in, f_out, model_name, oversampling, kfolds, representation):
+    """
+    Main k-fold loop. Exports results to json file.
+    Args:
+        d_in: Path to comment data.
+        f_out: Output file.
+        model_name: Which model should be used for validation.
+        oversampling: The oversampling target.
+        kfolds: How many folds to loop.
+        representation: Minimum representation of any label in the data set to be considered for training.
+    """
     start_time = datetime.now()
     classifiers = []
+    # read data
     f = open(d_in, 'r+', encoding="UTF-8")
     data = array(f.readlines())
     f.close()
-
+    # get set of labels in data
     labels = np.unique(np.array(list(map(lambda x: x.partition(' ')[0], data))))
+    # init classifiers for each label
     for label in labels:
         classifiers.append(models[model_name](label, d_in))
 
-    fold_outputs = []
-
-    # fold count
+    # track fold count
     fold = 0
-
-    # ten fold loop
+    # init Kfold
     kfold = KFold(kfolds, shuffle=True, random_state=1)
-
+    # calculate oversampling target based on highest representation among labels and the number of folds
+    # target = -1 disables oversampling
     oversampling_target = round(
         max(classifier.amount for classifier in classifiers) * ((kfolds - 1) / kfolds)) \
         if oversampling else -1
+    # split data into parts for folds
     for train, test in kfold.split(data):
         print("New tenfold iteration:", str(fold), "-----------------------------------------")
         # get test data
         test_data = list(map(lambda x: (x.partition(' ')[0], x.partition(' ')[2]), data[test]))
+        # get labels in test data
         tested_labels = np.unique(np.array(list(map(lambda x: (x[0]), test_data))))
+        # create training data set
         for classifier in classifiers:
             classifier.create_train_dataset(train, oversampling_target)
             if classifier.label not in tested_labels:
@@ -77,36 +97,46 @@ def k_fold_validation(d_in, f_out, model_name, oversampling, kfolds, representat
         enabled_classifiers = list(filter(lambda x: x.enabled, classifiers))
 
         print("start training...")
+        # create threads for training all classifiers
         for classifier in enabled_classifiers:
             with parallel_backend('threading', n_jobs=-1):
                 classifier.train_model()
         print("start testing for tenfold iteration...")
+        # predict on test data using trained models
         for i, line in enumerate(test_data):
             comment_text = test_data[i][1].replace('\n', '').replace('\r', '')
             correct_answer = test_data[i][0]
             predictions = {}
+            # predict
             for classifier in enabled_classifiers:
                 with parallel_backend('threading', n_jobs=-1):
                     predictions[classifier.label] = classifier.predict(comment_text)
             common_prediction = get_common_prediction(predictions)
+            # check if prediction correct and record positives/negatives
             for classifier in enabled_classifiers:
                 classifier.assess_result(common_prediction, correct_answer, fold)
+        # calculate metrics
         for classifier in classifiers:
             classifier.get_benchmarks(fold)
+        # increase fold
         fold += 1
+    # filter based on too low representation
     relevant_classifiers = list(filter(lambda x: x.amount >= representation, classifiers))
 
     details = []
     agg_TP = 0
     agg_TP_FP = 0
     agg_TP_FN = 0
+    # aggregate all positives/negatives of all folds
     for classifier in relevant_classifiers:
         agg_TP += sum(classifier.TP)
         agg_TP_FP += sum(classifier.TP_FP)
         agg_TP_FN += sum(classifier.TP_FN)
         details.append(classifier.__str__())
+    # calculate aggregated metrics
     agg_recall, agg_precision, agg_f1 = calculate_metrics(agg_TP, agg_TP_FN, agg_TP_FP)
     end_time = datetime.now()
+    # write results to json
     dump = {
         "Metadata": {
             "Model": model_name,
@@ -128,6 +158,7 @@ def k_fold_validation(d_in, f_out, model_name, oversampling, kfolds, representat
             }},
         "Details": details
     }
+    # export to file
     o = open(f_out, 'w+', encoding='UTF-8')
     o.write(json.dumps(dump, indent=4))
     o.close()

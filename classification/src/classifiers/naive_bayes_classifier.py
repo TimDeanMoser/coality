@@ -1,3 +1,6 @@
+"""
+Naive Bayes scikit learn classifier and its train and predict implementations
+"""
 from classification.src.classifiers.scikit_classifier import *
 from sklearn.naive_bayes import MultinomialNB
 

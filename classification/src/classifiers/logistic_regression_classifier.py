@@ -1,3 +1,6 @@
+"""
+Logistic regression scikit learn classifier and its train and predict implementations
+"""
 from sklearn.linear_model import LogisticRegression
 from classification.src.classifiers.scikit_classifier import *
 

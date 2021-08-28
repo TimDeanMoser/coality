@@ -1,3 +1,10 @@
+"""
+Entry point for predicting a string's label using the models provided. Prints prediction to console.
+For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
+
+Example:
+    $ python predictor.py C:\\my_models "predict this text"
+"""
 import argparse
 import logging
 import os
@@ -8,11 +15,21 @@ from joblib import parallel_backend
 
 
 class Predictor:
+    """
+    Contains functions and attributes for predicting a string's label using the models provided.
+
+    Args:
+        model_dir: Path to comment classification models directory.
+
+    Attributes:
+        classifiers: Holds all classifiers, one for each label.
+    """
     def __init__(self, model_dir):
-        # load classifiers
+        # check path
         if not os.path.isdir(model_dir):
             print("The directory with the models does not exist.")
             exit()
+        # load all models and instantiate classifiers
         self.classifiers = []
         for filename in os.listdir(model_dir):
             if filename.endswith(".model"):
@@ -21,6 +38,13 @@ class Predictor:
                     self.classifiers.append(p)
 
     def predict(self, text, verbose):
+        """
+        Predicts label using models.
+        Args:
+            text: Text that one wants to predict the label of
+            verbose: Argument if not only the predicted label should be returned, but also its probability.
+        Returns: prediction with or without probability.
+        """
         predictions = {}
         for classifier in self.classifiers:
             with parallel_backend('threading', n_jobs=-1):
@@ -29,6 +53,9 @@ class Predictor:
 
 
 def main(models, text, verbose):
+    """
+    Main function to predict a label.
+    """
     p = Predictor(models)
     return p.predict(text, verbose)
 

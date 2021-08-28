@@ -1,3 +1,6 @@
+"""
+J48 scikit learn classifier and its train and predict implementations
+"""
 from sklearn.tree import DecisionTreeClassifier
 
 from classification.src.classifiers.scikit_classifier import *

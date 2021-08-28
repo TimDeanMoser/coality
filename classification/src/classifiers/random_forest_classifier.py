@@ -1,3 +1,8 @@
+"""
+Random Forest scikit learn classifier and its train and predict implementations
+"""
+from sklearn.ensemble import RandomForestClassifier
+
 from classification.src.classifiers.scikit_classifier import *
 
 

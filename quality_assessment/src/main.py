@@ -12,7 +12,7 @@ import os
 import sys
 # import evaluator and rater mains
 from quality_assessment.src.comment_evaluator import main as evaluate
-from quality_assessment.src.rater import main as rate
+from quality_assessment.src.comment_rater import main as rate
 # path to the temporary files folder
 TMP_PATH = r"quality_assessment/src/tmp"
 
@@ -41,15 +41,16 @@ def main(project: str, output: str, models: str, syn: int):
 
     # rate and evaluate project
     comments_data = os.path.join(TMP_PATH, "rater_data.csv")
+    missing_comments_data = os.path.join(TMP_PATH, "rater_data_missing.csv")
     logging.debug("Calling rate()")
     rate(project, comments_data, models)
     logging.debug("Done with rate()")
     logging.debug("Calling evaluate()")
-    evaluate(project, output, comments_data, comments_data + ".missing", syn)
+    evaluate(project, output, comments_data, missing_comments_data, syn)
     logging.debug("Done with evaluate()")
     # delete temporary files
-    os.remove(os.path.join(TMP_PATH, "rater_data.csv"))
-    os.remove(os.path.join(TMP_PATH, "rater_data.csv.missing"))
+    os.remove(comments_data)
+    os.remove(missing_comments_data)
 
     logging.info("Done. View output file at %s", output)
 

@@ -1,3 +1,6 @@
+"""
+Linear svc scikit learn classifier and its train and predict implementations
+"""
 from sklearn.svm import LinearSVC
 from classification.src.classifiers.scikit_classifier import *
 

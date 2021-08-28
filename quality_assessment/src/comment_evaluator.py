@@ -62,6 +62,8 @@ class CommentEvaluator:
         df_missing["count_missing"] = 1
         # label found comments as not missing
         df["count_missing"] = 0
+        # pandas has a problem with a whole column being "" and forgets that it was originally a string
+        df_missing[['handle']] = df_missing[['handle']].astype(str)
         # join the two dataframes and save
         self.df: pd.DataFrame = pd.merge(df, df_missing, how='outer')
 
@@ -77,8 +79,8 @@ class CommentEvaluator:
         self.df["is_english"] = self.df.apply(lambda row: is_english(row), axis=1)
         self.df["is_too_short"] = self.df.apply(lambda row: is_too_short(row), axis=1)
         self.df["is_too_long"] = self.df.apply(lambda row: is_too_long(row), axis=1)
-        self.df["is_trivial"] = self.df.apply(lambda row: is_too_long(row), axis=1)
-        self.df["is_unrelated"] = self.df.apply(lambda row: is_too_long(row), axis=1)
+        self.df["is_trivial"] = self.df.apply(lambda row: is_trivial(row), axis=1)
+        self.df["is_unrelated"] = self.df.apply(lambda row: is_unrelated(row), axis=1)
         self.df["ignore"] = self.df.apply(lambda row: is_ignore(row), axis=1)
         # set certain cols to 'None' as they should not be considered when aggregating into sums/means
         self.nan_ignored_means()
@@ -313,7 +315,7 @@ def is_trivial(row) -> int:
         Returns:
             1 if trivial, 0 otherwise.
     """
-    return 1 if row["coherence_coefficient"] and row["coherence_coefficient"] > 0.5 else 0
+    return 1 if row["coherence_coefficient"] is not None and row["coherence_coefficient"] > 0.5 else 0
 
 
 def is_unrelated(row) -> int:
@@ -326,7 +328,7 @@ def is_unrelated(row) -> int:
         Returns:
             1 if unrelated, 0 otherwise.
     """
-    return 1 if row["coherence_coefficient"] and row["coherence_coefficient"] == 0.0 else 0
+    return 1 if row["coherence_coefficient"] is not None and row["coherence_coefficient"] == 0.0 else 0
 
 
 def valid_file(path) -> bool:
@@ -390,7 +392,7 @@ if __name__ == '__main__':
     parser.add_argument('comments', metavar='Comments', type=str,
                         help='Path to the scraped comments .csv')
 
-    parser.add_argument('missing_comments', metavar='Comments', type=str,
+    parser.add_argument('missing_comments', metavar='Missing_Comments', type=str,
                         help='Path to the scraped missing comments .csv')
 
     # optional arguments

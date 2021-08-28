@@ -1,4 +1,5 @@
 # module imports
+import logging
 import os
 import subprocess
 import xml.dom.minidom as xml
@@ -98,7 +99,7 @@ class CommentScraper:
             children = [child for child in children if child.nodeType == 1]
             # first element should be a (license) comment in every file
             if children[0].tagName != "comment":
-                missing_comments.append({"file": file_path, "pos": '1:1', "name": None, "type": "header"})
+                missing_comments.append({"file": file_path, "pos": '1:1', "name": "", "type": "header"})
             # get other missing comments
             missing_comments += get_missing_comments(children, file_path)
         # delete temporary srcML file

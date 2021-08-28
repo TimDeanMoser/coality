@@ -3,7 +3,7 @@ Scrape a project directory for comments and rate their contents/data. Creates a 
 For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
 
 Example:
-    $ python rater.py C:\\my_project comments.csv C:\\my_models -log warning
+    $ python comment_rater.py C:\\my_project comments.csv C:\\my_models -log warning
 """
 
 import argparse
@@ -364,7 +364,12 @@ def main(project: str, output: str, models: str):
     r.rate(comments)
     # Export the missing and found comments with the Exporter class
     e.export_comments(comments, output)
-    e.export_missing_comments(missing_comments, output + ".missing")
+    # Get filename for missing comments
+    res_path, res_filename = os.path.split(output)
+    res_filename = os.path.splitext(res_filename)[0]
+    missing_filename = '%s_missing.csv' % res_filename
+    missing_file_path = os.path.join(res_path, missing_filename)
+    e.export_missing_comments(missing_comments, missing_file_path)
 
 
 if __name__ == '__main__':
