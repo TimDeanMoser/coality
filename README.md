@@ -1,5 +1,5 @@
 # Comment-Quality
-Install all modules imported in the scripts and install srcML to your PATH. Tested and developed on Windows and Python 3.8
+Install all modules required with 'pip install -r requirements.txt' and install srcML to your PATH. Tested and developed on Windows and Python 3.8
 
 All runnable files...
 - predictor
