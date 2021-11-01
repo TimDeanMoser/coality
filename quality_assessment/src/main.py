@@ -1,4 +1,24 @@
 """
+Copyright (c) 2021 Tim Moser.
+
+This file is part of coality
+(see https://github.com/TimDeanMoser/coality).
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+"""
 This file parses the arguments and runs the main() function, which analyses the quality of a project's comments.
 For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
 
