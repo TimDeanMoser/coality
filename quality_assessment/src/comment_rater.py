@@ -67,7 +67,7 @@ class Rater:
         self.abbreviations = {}
         # read abbreviations list and save in a more accessible format
         reader = csv.reader(
-            open(r'quality_assessment\data\abbreviations.csv', 'r'))
+            open(r'quality_assessment/data/abbreviations.csv', 'r'))
         for row in reader:
             self.abbreviations[row[0]] = row[1]
         self.tokenizer = None
