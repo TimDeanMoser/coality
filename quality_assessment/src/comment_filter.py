@@ -48,23 +48,16 @@ class CommentFilter:
 
     def filter(self, language: str, label: str):
         """
-        Filter found comments and return comments that match all specified arguments.
+        Filter found comments by code language and comment label.
 
         Args:
             language: Code language of files.
             label: Comment label (summary, usage, rationale, expand, warning).
         """
-        # create a set of comments to be filtered out
-        throw_away = set()
-
-        # add comment id to throw-away set if value does not match specified argument
         if language:
-            throw_away.update(self.df.loc[self.df['code_language'] != language, 'id'])
+            self.df = self.df.loc[self.df['code_language'] == language]
         if label:
-            throw_away.update(self.df.loc[self.df['label'] != label, 'id'])
-
-        # return comment data not in throw-away set
-        return self.df[~self.df['id'].isin(throw_away)]
+            self.df = self.df.loc[self.df['label'] == label]
         
 def main(output: str, comments: str, language: str, label: str):
     """
@@ -80,8 +73,8 @@ def main(output: str, comments: str, language: str, label: str):
         Creates a .csv file at the output location with the data of resulting comments.
     """
     f = CommentFilter(comments)
-    filtered_comments = f.filter(language, label)
-    filtered_comments.to_csv(output, index=False)
+    f.filter(language, label)
+    f.df.to_csv(output, index=False)
 
 if __name__ == '__main__':
     # mandatory arguments
