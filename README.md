@@ -1,7 +1,13 @@
 # Comment-Quality
-Install all modules required with 'pip install -r requirements.txt' and install srcML to your PATH. Tested and developed on Windows and Python 3.8
+Install all modules required with 'pip install -r requirements.txt' and install srcML to your PATH. Tested and developed on Windows and **Python 3.8**
 
-If using Mac or Linux, run the setup.sh script to port the project over and handle all requirements. This will allow you to work with main.py right away, to generate an output.json file from a downloaded test project. 
+If using Linux (tested on Ubuntu), run the `setup.sh` script to port the project over and handle all requirements. This will allow you to work with main.py right away, to generate an output.json file from a downloaded test project. 
+
+If using Windows, run the `setup.ps1` script to quickly get up and running with the project. Please note the following:
+* For fasttext, install the following: `Windows Universal C Runtime`, `Windows 10 SDK (10.x.x.x)`, and `C++ Build Tools core features`
+* The project should be permanently added to `PYTHONPATH` in `Environment Variables` i.e., `C:\PathtoPython38;C:\PathtoProject`
+
+*Example usage*: `python .\quality_assessment\src\main.py C:\Full\Path\To\Example_Project .\outputs\example_output.json .\models\ -log debug`
 
 All runnable files...
 - predictor
