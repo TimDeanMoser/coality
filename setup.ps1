@@ -14,7 +14,7 @@ $env:PYTHONPATH += $env:PYTHONPATH+";"+$PROJECT_PATH
 pip install -r requirements.txt
 python -m nltk.downloader stopwords
 python -m nltk.downloader punkt
-wget $SRC_ML_URL -OutFile $SRC_ML
+Invoke-WebRequest $SRC_ML_URL -OutFile $SRC_ML
 & $SRC_ML
 # Train models
 python classification/src/trainer.py classification/data/data_sets_pooja_pascarella/no_pp.txt models/
