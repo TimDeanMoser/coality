@@ -9,9 +9,10 @@ dos2unix \
 wget \
 python3 \
 python3-pip \
+git \
 libxml2 \
-git
+libcurl4 \
+libarchive13
 RUN find . -type f -print0 | xargs -0 dos2unix
 RUN ./setup.sh
-RUN apt-get -f install -y
 ENV PYTHONPATH="${PYTHONPATH}:/$PROJECT_PATH"
