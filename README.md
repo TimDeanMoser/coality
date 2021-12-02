@@ -1,10 +1,9 @@
 # Comment-Quality
 Coality is a Python pipeline for assessing comment quality and classifying comments in software repositories.
 ## Docker Container
-* A working Docker container is available [here](https://hub.docker.com/r/danielj0nes/coality). With Docker installed, you can pull the container with `docker pull danielj0nes/coality` and access it using `docker exec -it <name> /bin/bash`. 
+* A working Docker container is available [here](https://hub.docker.com/r/danielj0nes/coality). With Docker installed, you can pull the container with `docker pull danielj0nes/coality` and access it using `docker exec -it <container_name> /bin/bash`. 
 * This is **highly recommended**; all dependencies will be taken care of, allowing you to skip installations and immediately run the project on different repositories.
 * Use `git clone` in `projects/` and then use the command `python3 quality_assessment/src/main.py projects/<project_name> outputs/<output_name>.json models/ -log debug`.
-* **Note**: Create the empty `<output_name>.json` file in `outputs/` first.
 ## Development guide
 * In general, install all modules required with 'pip install -r requirements.txt' and add srcML + the project directory to PATH. Tested and developed on Windows and **Python 3.8**.
 * If using Linux (tested on Ubuntu), run the `setup.sh` script to port the project over and handle all requirements. This will allow you to work with main.py right away, to generate an output.json file from a downloaded test project. 
