@@ -23,11 +23,12 @@ Filter scraped comments from the rater class by code language and comment label.
 For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
 
 Example:
-    $ python comment_filter.py filtered_comments.csv comments.csv -label summary
+    $ python comment_filter.py comments.csv -label summary -lang c++
 """
 
 import argparse
 import logging
+import os
 import sys
 import pandas as pd
 
@@ -59,29 +60,32 @@ class CommentFilter:
         if label:
             self.df = self.df.loc[self.df['label'] == label]
         
-def main(output: str, comments: str, language: str, label: str):
+def main(comments: str, language: str, label: str):
     """
     Filter the results of the rater class.
 
     Args:
-        output: Path to output file.
         comments: Path to .csv with all found comments of the rater.
         language: Code language of files.
         label: Comment label (summary, usage, rationale, expand, warning).
 
     Returns:
-        Creates a .csv file at the output location with the data of resulting comments.
+        Creates a .csv file with the data of resulting comments.
     """
+    # Get filename for filtered comments
+    res_path, res_filename = os.path.split(comments)
+    res_filename = os.path.splitext(res_filename)[0]
+    filtered_filename = '%s_filtered.csv' % res_filename
+    filtered_filepath = os.path.join(res_path, filtered_filename)
+
+    # Filter and produce a csv file
     f = CommentFilter(comments)
     f.filter(language, label)
-    f.df.to_csv(output, index=False)
+    f.df.to_csv(filtered_filepath, index=False)
 
 if __name__ == '__main__':
     # mandatory arguments
     parser = argparse.ArgumentParser(description='Filter scraped comments and export data as a .csv')
-
-    parser.add_argument('output', metavar='Output', type=str,
-                        help='Path for the output .csv file')
     
     parser.add_argument('comments', metavar='Comments', type=str,
                         help='Path to the scraped comments .csv')
@@ -121,6 +125,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
                         level=level, stream=sys.stdout)
     # run main() function
-    main(args.output, args.comments, languages[args.language], labels[args.label])
+    main(args.comments, languages[args.language], labels[args.label])
 
     exit()

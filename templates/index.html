@@ -4,11 +4,41 @@
 		<link rel="stylesheet" type="text/css" href="../static/main.css"> 
 	</head>
 	<body>
-        <form class="grid" action="/result" method="POST">
-          <center><input class="file_submit" type="Submit"></center>
+        <form class="c_grid" action="/result" method="POST">
+          <div class="box2">
+            <label>Project Path</label>
+            <input type="text" name="project_path">
+          </div>
+          <div class="box3">
+            <div class="box2">
+              <label>Comment Label</label>
+              <select name=comment_label>
+                <option value="any">Any</option>
+                <option value="summary">Summary</option>
+                <option value="expand">Expand</option>
+                <option value="usage">Usage</option>
+                <option value="rationale">Rationale</option>
+                <option value="warning">Warning</option>
+              </select>
+            </div>
+            <div class="box2">
+              <label>Language</label>
+              <select name=language>
+                <option value="any">Any</option>
+                <option value="c">C</option>
+                <option value="c++">C++</option>
+                <option value="c#">C#</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
+            <div class="box2">
+              <label>Scope</label>
+              <select name=scope>
+                <option value="">Default</option>
+              </select>
+            </div>
+          </div>
+          <input class="file_submit" type="submit" value="Submit">
         </form>
-        <br>
-        <br>
-        <br>
     </body>
 </html>
