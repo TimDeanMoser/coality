@@ -12,8 +12,9 @@ def home():
 @app.route('/result',methods=['POST'])
 def result():
     project_path = request.form['project_path']
-    subprocess.run(['python', 'quality_assessment/src/main.py', project_path, 'outputs/output.json', 'models/', '--label', request.form['comment_label'], '--language', request.form['language']], shell=True)
+    print(project_path)
+    subprocess.run(f"python3 quality_assessment/src/main.py {project_path} outputs/output.json models/ --label {request.form['comment_label']} --language {request.form['language']}", shell=True)
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

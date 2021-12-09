@@ -7,3 +7,4 @@ nltk~=3.5
 levenshtein~=0.12.0
 stemming~=1.0.1
 simplejson~=3.17.2
+Flask~=2.0.2
