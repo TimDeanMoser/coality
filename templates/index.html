@@ -11,7 +11,11 @@
     <form class="c_grid" action="/result" method="POST">
       <div class="box2">
         <label>Project Path</label>
-        <input type="text" name="project_path">
+        <input id="project_path" type="text" name="project_path" onblur="document.getElementById('git_url').disabled = (this.value != '');">
+      </div>
+      <div class="box2">
+        <label>Github URL</label>
+        <input id="git_url" type="text" name="git_url" onblur="document.getElementById('project_path').disabled = (this.value != '');">
       </div>
       <div class="box3">
         <div class="box2">
