@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash
+import json
 from datetime import datetime
 from git import Repo, rmtree
 import random
@@ -37,7 +38,11 @@ def result():
         flash("An error occurred. Try checking your project path.")
     # Delete the cloned repo once finished
     rmtree(project_path)
-    return render_template("index.html")
+    json_output = json.load(open(f"outputs/{repo_name}_{timestamp}.json"))
+    return render_template(
+        "results.html",
+        response=json.dumps(json_output, sort_keys=True, indent=2, separators=(',', ': '))
+        )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
