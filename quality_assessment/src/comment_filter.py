@@ -19,8 +19,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 """
-Filter scraped comments from the rater class by code language and comment label. Creates a .csv file for filtered comments.
-For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
+Filter scraped comments from the rater class by code language and comment label. Creates a .csv file
+for filtered comments.
+
+For a smooth performance, make sure that the root of the repository is the working directory when
+running the script and use absolute paths as the arguments.
 
 Example:
     $ python comment_filter.py comments.csv -label summary -lang c++
@@ -40,12 +43,12 @@ class CommentFilter:
         comment_data: Path to .csv containing all found comments.
 
     Attributes:
-        df: Main pandas dataframe that is used for calculations inside the class.
+        data_frame: Main pandas dataframe that is used for calculations inside the class.
     """
 
     def __init__(self, comment_data: str):
         # save found comments as dataframe
-        self.df = pd.read_csv(comment_data)
+        self.data_frame = pd.read_csv(comment_data)
 
     def filter(self, language: str, label: str):
         """
@@ -56,10 +59,10 @@ class CommentFilter:
             label: Comment label (summary, usage, rationale, expand, warning).
         """
         if language:
-            self.df = self.df.loc[self.df['code_language'] == language]
+            self.data_frame = self.data_frame.loc[self.data_frame['code_language'] == language]
         if label:
-            self.df = self.df.loc[self.df['label'] == label]
-        
+            self.data_frame = self.data_frame.loc[self.data_frame['label'] == label]
+
 def main(comments: str, language: str, label: str):
     """
     Filter the results of the rater class.
@@ -79,14 +82,14 @@ def main(comments: str, language: str, label: str):
     filtered_filepath = os.path.join(res_path, filtered_filename)
 
     # Filter and produce a csv file
-    f = CommentFilter(comments)
-    f.filter(language, label)
-    f.df.to_csv(filtered_filepath, index=False)
+    comment_filter = CommentFilter(comments)
+    comment_filter.filter(language, label)
+    comment_filter.data_frame.to_csv(filtered_filepath, index=False)
 
 if __name__ == '__main__':
     # mandatory arguments
-    parser = argparse.ArgumentParser(description='Filter scraped comments and export data as a .csv')
-    
+    parser = argparse.ArgumentParser(
+        description='Filter scraped comments and export data as a .csv')
     parser.add_argument('comments', metavar='Comments', type=str,
                         help='Path to the scraped comments .csv')
 
@@ -99,7 +102,8 @@ if __name__ == '__main__':
         'warning': "__label__warning",
         'any': ""
     }
-    parser.add_argument("-label", "--label", default="any", help=("Filter by comment type. Example --label summary, default='any'"), choices=labels.keys())
+    parser.add_argument("-label", "--label", default="any", help=(
+        "Filter by comment type. Example --label summary, default='any'"), choices=labels.keys())
     languages = {
         'c': "C",
         'c++': "C++",
@@ -107,7 +111,8 @@ if __name__ == '__main__':
         'java': "Java",
         'any': ""
     }
-    parser.add_argument("-lang", "--language", default="any", help=("Filter by code language. Example --language c++, default='any'"), choices=languages.keys())
+    parser.add_argument("-lang", "--language", default="any", help=(
+        "Filter by code language. Example --language c++, default='any'"), choices=languages.keys())
     levels = {
         'critical': logging.CRITICAL,
         'error': logging.ERROR,
@@ -116,14 +121,15 @@ if __name__ == '__main__':
         'info': logging.INFO,
         'debug': logging.DEBUG
     }
-    parser.add_argument("-log", "--log", default="info",
-                        help=("Provide logging level. Example --log debug', default='info'"), choices=levels.keys())
+    parser.add_argument("-log", "--log", default="info", help=(
+        "Provide logging level. Example --log debug', default='info'"), choices=levels.keys())
 
     args = parser.parse_args()
     # get and set logger level and format
     level = levels.get(args.log.lower())
-    logging.basicConfig(format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
-                        level=level, stream=sys.stdout)
+    logging.basicConfig(
+        format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
+        level=level, stream=sys.stdout)
     # run main() function
     main(args.comments, languages[args.language], labels[args.label])
 
