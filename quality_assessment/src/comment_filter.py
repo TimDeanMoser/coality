@@ -75,7 +75,7 @@ def main(comments: str, language: str, label: str):
     # Get filename for filtered comments
     res_path, res_filename = os.path.split(comments)
     res_filename = os.path.splitext(res_filename)[0]
-    filtered_filename = '%s_filtered.csv' % res_filename
+    filtered_filename = f"{res_filename}_filtered.csv"
     filtered_filepath = os.path.join(res_path, filtered_filename)
 
     # Filter and produce a csv file
@@ -127,4 +127,4 @@ if __name__ == '__main__':
     # run main() function
     main(args.comments, languages[args.language], labels[args.label])
 
-    exit()
+    sys.exit()
