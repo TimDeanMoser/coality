@@ -9,13 +9,35 @@
         <a href="/result/download/{{ json_file_name }}" download>Download</a>
     </div>
 	<body>
-        <p class="file-title">{{ json_file_name }}</p>
         <h2 class="key-metrics">Key metrics</h2>
         <ul class="metric-list">
-            <li>Total files: {{ total_files }}</li>
-            <li>Total comments: {{ total_comments }}</li>
-            
+            <li class="tooltip-label-left">Total files: <b>{{ total_files }}</b>
+                <span class="tooltip-left">Total number of files (with an extension) in the project</span>
+            </li>
+            <br>
+            <li class="tooltip-label-left">Total comments: <b>{{ total_comments }}</b>
+                <span class="tooltip-left">Total number of comments detected in the project</span>
+            </li>
+            <br>
+            <li class="tooltip-label-left">Overall Flesch Reading Ease Level: <b>{{ frel }}</b>
+                <span class="tooltip-left">Readability metric. The closer to 100, the more readable the comments are </span>
+            </li>
+            <br>
+            <li class="tooltip-label-left">Overall Flesch-Kincaid grade level score: <b>{{ fkgls }}</b>
+                <span class="tooltip-left">
+                    Additional readability metric.
+                    <br>
+                    The score is indicative of the school grade required to understand the content; an optimal score lies between 7.0 and 8.0 </span>
+            </li>
+            <br>
+            <li class="tooltip-label-left">Overall Fog Index: <b>{{ fox_index }}</b>
+                <span class="tooltip-left">
+                    This value indicates the number of years of formal education required to understand the text.
+                    <br>
+                    A score above 12 is indicative of poor performance. </span>
+            </li>
         </ul>
+        <p class="file-title">{{ json_file_name }}</p>
         <div class="results">
             <pre class="result-json">Loading...</pre>
         </div>

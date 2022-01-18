@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import Flask
 from flask import render_template, request, flash, send_file
 from git import Repo, rmtree
-from json_extract import json_extractor
+from json_extract import json_extractor, get_files
 
 app = Flask(__name__)
 app.secret_key = "".join(random.choices(string.ascii_letters + string.digits, k=12))
@@ -61,7 +61,11 @@ def create_result():
         "results.html",
         json_data=json.dumps(json_output),
         json_file_name=filename,
-        total_files=len(json_extractor(json_output, "name")),
+        total_files=len(get_files(json_output, "name")),
+        all_files = get_files(json_output, "name"),
+        fox_index = json_output["fi"],
+        frel = json_output["frel"],
+        fkgls = json_output["fkgls"],
         total_comments=len(json_extractor(json_output, "text"))
         )
 
@@ -74,7 +78,11 @@ def result_fetch(filename):
         "results.html",
         json_data=json.dumps(json_output),
         json_file_name=filename,
-        total_files=len(json_extractor(json_output, "name")),
+        total_files=len(get_files(json_output, "name")),
+        all_files = get_files(json_output, "name"),
+        fox_index = json_output["fi"],
+        frel = json_output["frel"],
+        fkgls = json_output["fkgls"],
         total_comments=len(json_extractor(json_output, "text"))
         )
 

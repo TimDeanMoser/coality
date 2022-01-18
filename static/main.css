@@ -5,7 +5,7 @@ html,body{
     box-sizing: border-box;
     font-family: 'Rubik';
     letter-spacing: 0.5px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 
@@ -167,7 +167,6 @@ option{
     position: fixed;
     z-index: 1;
     transition: 0.5s;
-    padding-top: 1px;
     width: 180;
   }
   
@@ -207,8 +206,11 @@ option{
       margin: 0 auto;
       padding: 10px;
   }
-
 .tooltip-label {
+    position: relative;
+    display: inline-block;
+  }
+.tooltip-label-left {
     position: relative;
     display: inline-block;
   }
@@ -228,10 +230,31 @@ option{
     left: 50%;
     margin-left: -60px;
   }
+
+  .tooltip-label-left .tooltip-left {
+    visibility: hidden;
+    width: 300px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    right: 105%;
+  }
   .tooltip {
       font-size: 14;
   }
-
+  .tooltip-left {
+    font-size: 14;
+}
   .tooltip-label:hover .tooltip {
     visibility: visible;
-  }
+  } 
+  .tooltip-label-left:hover .tooltip-left {
+    visibility: visible;
+  } 
