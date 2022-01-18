@@ -207,3 +207,31 @@ option{
       margin: 0 auto;
       padding: 10px;
   }
+
+.tooltip-label {
+    position: relative;
+    display: inline-block;
+  }
+.tooltip-label .tooltip {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+  }
+  .tooltip {
+      font-size: 14;
+  }
+
+  .tooltip-label:hover .tooltip {
+    visibility: visible;
+  }

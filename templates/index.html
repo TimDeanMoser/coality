@@ -16,11 +16,15 @@
     {% endfor %}
     <form class="c_grid" action="/result" method="POST">
       <div class="box2">
-        <label>Project Path</label>
+        <label class="tooltip-label">Project Path
+          <span class="tooltip">Accepts a local path to a repository. <br> E.g., coality/projects/project_directory</span>
+        </label>
         <input id="project_path" type="text" name="project_path" onblur="document.getElementById('git_url').disabled = (this.value != '');">
       </div>
       <div class="box2">
-        <label>Github URL</label>
+        <label class="tooltip-label">Github URL
+          <span class="tooltip">Accepts a valid GitHub repository. <br> E.g., https://github.com/BVLC/caffe.git</span>
+        </label>
         <input id="git_url" type="text" name="git_url" onblur="document.getElementById('project_path').disabled = (this.value != '');">
       </div>
       <div class="box3">

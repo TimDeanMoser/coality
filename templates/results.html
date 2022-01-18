@@ -21,9 +21,9 @@
         </div>
         <script>
             Object.prototype.prettyPrint = function(){
-                var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
-                var replacer = function(match, pIndent, pKey, pVal, pEnd) {
-                    var key = '<span class="json-key" style="color: brown">',
+                let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+                let replacer = function(match, pIndent, pKey, pVal, pEnd) {
+                    let key = '<span class="json-key" style="color: brown">',
                         val = '<span class="json-value" style="color: navy">',
                         str = '<span class="json-string" style="color: olive">',
                         r = pIndent || '';
