@@ -4,9 +4,43 @@
 		<link rel="stylesheet" type="text/css" href="../static/main.css"> 
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	</head>
+    <div class="navbar">
+        <a href="/home">Home</a>
+        <a href="/result/download/{{ json_file_name }}" download>Download</a>
+    </div>
 	<body>
+        <p class="file-title">{{ json_file_name }}</p>
+        <h2 class="key-metrics">Key metrics</h2>
+        <ul class="metric-list">
+            <li>Total files: {{ total_files }}</li>
+            <li>Total comments: {{ total_comments }}</li>
+            
+        </ul>
         <div class="results">
-            <pre>{{ response }}</pre>
+            <pre class="result-json">Loading...</pre>
         </div>
+        <script>
+            Object.prototype.prettyPrint = function(){
+                var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+                var replacer = function(match, pIndent, pKey, pVal, pEnd) {
+                    var key = '<span class="json-key" style="color: brown">',
+                        val = '<span class="json-value" style="color: navy">',
+                        str = '<span class="json-string" style="color: olive">',
+                        r = pIndent || '';
+                    if (pKey)
+                        r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+                    if (pVal)
+                        r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+                    return r + (pEnd || '');
+                };
+                return JSON.stringify(this, null, 3)
+                        .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+                        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(jsonLine, replacer);
+            };
+            let jso = JSON.parse({{ json_data| tojson | safe }});
+            let c = document.getElementsByClassName("result-json")
+            c[0].innerHTML = jso.prettyPrint();
+        </script>
     </body>
 </html>

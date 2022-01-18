@@ -5,6 +5,12 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	</head>
 	<body>
+    <div class="file-viewer">
+    <p>Previously generated files</p>
+    {% for file in json_files %}
+    <a href="/result/{{ file }}">{{ file }}</a>
+    {% endfor %}
+    </div>
     {% for message in get_flashed_messages() %}
     <div class="message">{{ message }}</div>
     {% endfor %}

@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, flash
+"""Coality - Web frontend functionality"""
 import json
-from datetime import datetime
-from git import Repo, rmtree
 import random
 import string
 import subprocess
+import glob
+from datetime import datetime
+from flask import Flask
+from flask import render_template, request, flash, send_file
+from git import Repo, rmtree
+from json_extract import json_extractor
 
 app = Flask(__name__)
 app.secret_key = "".join(random.choices(string.ascii_letters + string.digits, k=12))
@@ -12,10 +16,15 @@ app.secret_key = "".join(random.choices(string.ascii_letters + string.digits, k=
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template("index.html")
+    """Initial page rendering"""
+    return render_template(
+        "index.html",
+        json_files=glob.glob1("outputs/", "*.json")
+        )
 
-@app.route("/result", methods=["post"])
-def result():
+@app.route("/result", methods=["POST"])
+def create_result():
+    """Handles form submission + sending the JSON output data to the results page"""
     # First process certain form data and create timestamp
     comment_label = request.form["comment_label"]
     comment_language = request.form["language"]
@@ -34,18 +43,46 @@ def result():
         return render_template("index.html")
     # Run the main.py script to generate the output as a json file
     try:
-        # Using .split() solves the bug where the Python shell is opened if we pass the function a list
-        subprocess.run(f"python3 quality_assessment/src/main.py {project_path} outputs/{repo_name}_{timestamp}.json models/ --label {comment_label} --language {comment_language}".split())
+        subprocess.run(f"""python3 quality_assessment/src/main.py {project_path}
+        outputs/{repo_name}_{timestamp}.json
+        models/
+        --label {comment_label}
+        --language {comment_language}""".split(),
+        check=True)
     except subprocess.CalledProcessError:
         flash("An error occurred. Try checking your project path.")
     # Delete the cloned repo once finished
     rmtree(project_path)
     # Load the JSON output and send it to the results page
-    json_output = json.load(open(f"outputs/{repo_name}_{timestamp}.json"))
+    filename = f"{repo_name}_{timestamp}.json"
+    with open(f"outputs/{filename}", encoding="utf-8") as json_data:
+        json_output = json.load(json_data)
     return render_template(
         "results.html",
-        response=json.dumps(json_output, indent=2)
+        json_data=json.dumps(json_output),
+        json_file_name=filename,
+        total_files=len(json_extractor(json_output, "name")),
+        total_comments=len(json_extractor(json_output, "text"))
         )
+
+@app.route("/result/<filename>", methods=["GET"])
+def result_fetch(filename):
+    """Retrieve the data of a specified JSON file and render it in the results page"""
+    with open(f"outputs/{filename}", encoding="utf-8") as json_data:
+        json_output = json.load(json_data)
+    return render_template(
+        "results.html",
+        json_data=json.dumps(json_output),
+        json_file_name=filename,
+        total_files=len(json_extractor(json_output, "name")),
+        total_comments=len(json_extractor(json_output, "text"))
+        )
+
+@app.route("/result/download/<filename>", methods=["GET", "POST"])
+def download_json(filename):
+    """Simple download file function"""
+    return send_file(f"outputs/{filename}", as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

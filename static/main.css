@@ -4,7 +4,8 @@ html,body{
     list-style: none;
     box-sizing: border-box;
     font-family: 'Rubik';
-    letter-spacing: 3px;
+    letter-spacing: 0.5px;
+    overflow: hidden;
 }
 
 
@@ -133,3 +134,76 @@ option{
     letter-spacing: 3px;
     background-color: bisque;
 }
+
+.navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+.navbar a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  .navbar a:hover {
+    background-color: royalblue;
+  }
+
+  .results {
+    max-height: 700;
+    max-width: 1200;
+    overflow: auto;
+    margin: auto;
+    background-color: #f4f4f4;
+    border-style: groove;
+  }
+
+  .file-viewer {
+    background-color: #333;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    transition: 0.5s;
+    padding-top: 1px;
+    width: 180;
+  }
+  
+  .file-viewer a {
+    padding: 5px 5px 8px 5px;
+    text-decoration: none;
+    font-size: 12;
+    color: white;
+    display: block;
+  }
+  .file-viewer p {
+    padding: 5px 5px 8px 5px;
+    text-decoration: none;
+    font-size: 15px;
+    color: white;
+    display: block;
+  }
+
+  .file-viewer a:hover {
+    color: royalblue;
+  }
+
+  .file-title {
+    margin: auto;
+    text-align: center;
+    font-size: 1.5vmax;
+    padding: 20px;
+  }
+
+  .key-metrics {
+      margin: auto;
+      text-align: center;
+      padding: 10px;
+  }
+  .metric-list {
+      display: table;
+      margin: 0 auto;
+      padding: 10px;
+  }
