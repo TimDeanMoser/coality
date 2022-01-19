@@ -1,2 +1,6 @@
 /venv !tmp/.gitkeep /.idea
 /data/binary_data_sets/* /results/old_results
+models/
+outputs/
+projects/
+

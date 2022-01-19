@@ -30,14 +30,15 @@ import argparse
 import logging
 import os
 import sys
-# import evaluator and rater mains
+# import evaluator, filter, and rater mains
 from quality_assessment.src.comment_evaluator import main as evaluate
+from quality_assessment.src.comment_filter import main as filter
 from quality_assessment.src.comment_rater import main as rate
 # path to the temporary files folder
 TMP_PATH = r"quality_assessment/src/tmp"
 
 
-def main(project: str, output: str, models: str, syn: int):
+def main(project: str, output: str, models: str, syn: int, language: str, label: str):
     """Combines the rater and evaluator classes and is the main entry point if you want to assess comment quality.
     Creates a json file with the data at the output location.
 
@@ -46,6 +47,8 @@ def main(project: str, output: str, models: str, syn: int):
         output: Path to output file.
         models: Path to directory holding the comment classification models.
         syn: Argument for enabling the synonym analysis (0 or 1). Not recommended for large projects.
+        language: Code language of files to be evaluated.
+        label: Label (summary, usage, rationale, expand, warning) of comments to be evaluated.
     """
     logging.info("Entering main() function with arguments: project: %s, output: %s, models: %s, syn: %d", project, output, models, syn)
     # check if 'project' is a valid directory
@@ -59,18 +62,27 @@ def main(project: str, output: str, models: str, syn: int):
         exit()
     logging.debug("Models is a valid directory")
 
-    # rate and evaluate project
+    # rate, filter, and evaluate project
     comments_data = os.path.join(TMP_PATH, "rater_data.csv")
     missing_comments_data = os.path.join(TMP_PATH, "rater_data_missing.csv")
+    filtered_comments_data = os.path.join(TMP_PATH, "rater_data_filtered.csv")
+
     logging.debug("Calling rate()")
     rate(project, comments_data, models)
     logging.debug("Done with rate()")
+
+    logging.debug("Calling filter()")
+    filter(comments_data, language, label)
+    logging.debug("Done with filter()")
+
     logging.debug("Calling evaluate()")
-    evaluate(project, output, comments_data, missing_comments_data, syn)
+    evaluate(project, output, filtered_comments_data, missing_comments_data, syn)
     logging.debug("Done with evaluate()")
+    
     # delete temporary files
     os.remove(comments_data)
     os.remove(missing_comments_data)
+    os.remove(filtered_comments_data)
 
     logging.info("Done. View output file at %s", output)
 
@@ -92,6 +104,23 @@ if __name__ == '__main__':
                                                              "recommended for big projects due to complexity. [0 ("
                                                              "default), 1].",
                         choices=[0, 1], default=0)
+    labels = {
+        'summary': "__label__summary",
+        'expand': "__label__expand",
+        'usage': "__label__usage",
+        'rationale': "__label__rational",
+        'warning': "__label__warning",
+        'any': ""
+    }
+    parser.add_argument("-label", "--label", default="any", help=("Filter by comment type. Example --label summary, default='any'"), choices=labels.keys())
+    languages = {
+        'c': "C",
+        'c++': "C++",
+        'c#': "C#",
+        'java': "Java",
+        'any': ""
+    }
+    parser.add_argument("-lang", "--language", default="any", help=("Filter by code language. Example --language c++, default='any'"), choices=languages.keys())
     levels = {
         'critical': logging.CRITICAL,
         'error': logging.ERROR,
@@ -110,6 +139,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
                         level=level, stream=sys.stdout)
     # call main()
-    main(args.project.replace("\\", "/"), args.output, args.models, args.synonyms)
+    main(args.project.replace("\\", "/"), args.output, args.models, args.synonyms, languages[args.language], labels[args.label])
 
     exit()

@@ -1,0 +1,63 @@
+<html> 
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">		
+		<link rel="stylesheet" type="text/css" href="../static/main.css"> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	</head>
+	<body>
+    <div class="file-viewer">
+    <p>Previously generated files</p>
+    {% for file in json_files %}
+    <a href="/result/{{ file }}">{{ file }}</a>
+    {% endfor %}
+    </div>
+    {% for message in get_flashed_messages() %}
+    <div class="message">{{ message }}</div>
+    {% endfor %}
+    <form class="c_grid" action="/result" method="POST">
+      <div class="box2">
+        <label class="tooltip-label">Project Path
+          <span class="tooltip">Accepts a local path to a repository. <br> E.g., coality/projects/project_directory</span>
+        </label>
+        <input id="project_path" type="text" name="project_path" onblur="document.getElementById('git_url').disabled = (this.value != '');">
+      </div>
+      <div class="box2">
+        <label class="tooltip-label">Github URL
+          <span class="tooltip">Accepts a valid GitHub repository. <br> E.g., https://github.com/BVLC/caffe.git</span>
+        </label>
+        <input id="git_url" type="text" name="git_url" onblur="document.getElementById('project_path').disabled = (this.value != '');">
+      </div>
+      <div class="box3">
+        <div class="box2">
+          <label>Comment Label</label>
+          <select name=comment_label>
+            <option value="any">Any</option>
+            <option value="summary">Summary</option>
+            <option value="expand">Expand</option>
+            <option value="usage">Usage</option>
+            <option value="rationale">Rationale</option>
+            <option value="warning">Warning</option>
+          </select>
+        </div>
+        <div class="box2">
+          <label>Language</label>
+          <select name=language>
+            <option value="any">Any</option>
+            <option value="c">C</option>
+            <option value="c++">C++</option>
+            <option value="c#">C#</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
+        <div class="box2">
+          <label>Scope</label>
+          <select name=scope>
+            <option value="">Default</option>
+          </select>
+        </div>
+      </div>
+      <input class="file_submit" type="submit" value="Submit" onclick="$('#loader').show();">
+    </form>
+    <center><div id="loader" style="display:none"></div></center>
+  </body>
+</html>
