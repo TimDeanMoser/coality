@@ -2,8 +2,10 @@
 Coality is a Python pipeline for assessing comment quality and classifying comments in software repositories.
 ## Flask Web Application
 * Possibly the easiest way to get started with this project is to install the dependencies and then just launch the Flask web application using `python app.py`. With the server running, you can access all of the functionalities within the browser.
+* This includes: Easy running of the script through a GUI (either through a local path or a valid GitHub repository URL), a visualisation tool for the JSON output, various key metrics, and quick access to previously generated output.
 <img src="https://i.imgur.com/9kzTRlZ.png" width="100%" height="100%">
 <img src="https://i.imgur.com/BbWKJcO.png" width="100%" height="100%">
+
 
 ## Docker Container
 * A working Docker container is available [here](https://hub.docker.com/r/danielj0nes/coality). With Docker installed, you can pull the image with `docker pull danielj0nes/coality`, run the container with `docker run -t -d --name <container_name> danielj0nes/coality`, and access it using `docker exec -it <container_name> /bin/bash`. 
