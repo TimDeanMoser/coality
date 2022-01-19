@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import Flask
 from flask import render_template, request, flash, send_file
 from git import Repo, rmtree
-from json_extract import json_extractor, get_files
+from json_extract import get_files_comments
 
 app = Flask(__name__)
 app.secret_key = "".join(random.choices(string.ascii_letters + string.digits, k=12))
@@ -57,16 +57,18 @@ def create_result():
     filename = f"{repo_name}_{timestamp}.json"
     with open(f"outputs/{filename}", encoding="utf-8") as json_data:
         json_output = json.load(json_data)
+    all_files_comments = get_files_comments(json_output)
+
     return render_template(
         "results.html",
         json_data=json.dumps(json_output),
+        all_files_comments = all_files_comments,
         json_file_name=filename,
-        total_files=len(get_files(json_output, "name")),
-        all_files = get_files(json_output, "name"),
+        total_files=len({uniq_file for uniq_file, comment in all_files_comments}),
         fox_index = json_output["fi"],
         frel = json_output["frel"],
         fkgls = json_output["fkgls"],
-        total_comments=len(json_extractor(json_output, "text"))
+        total_comments=len([comment for file, comment in all_files_comments])
         )
 
 @app.route("/result/<filename>", methods=["GET"])
@@ -74,23 +76,23 @@ def result_fetch(filename):
     """Retrieve the data of a specified JSON file and render it in the results page"""
     with open(f"outputs/{filename}", encoding="utf-8") as json_data:
         json_output = json.load(json_data)
+    all_files_comments = get_files_comments(json_output)
     return render_template(
         "results.html",
         json_data=json.dumps(json_output),
+        all_files_comments = all_files_comments,
         json_file_name=filename,
-        total_files=len(get_files(json_output, "name")),
-        all_files = get_files(json_output, "name"),
+        total_files=len({uniq_file for uniq_file, comment in all_files_comments}),
         fox_index = json_output["fi"],
         frel = json_output["frel"],
         fkgls = json_output["fkgls"],
-        total_comments=len(json_extractor(json_output, "text"))
+        total_comments=len([comment for file, comment in all_files_comments])
         )
 
 @app.route("/result/download/<filename>", methods=["GET", "POST"])
 def download_json(filename):
     """Simple download file function"""
     return send_file(f"outputs/{filename}", as_attachment=True)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

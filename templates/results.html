@@ -41,6 +41,25 @@
         <div class="results">
             <pre class="result-json">Loading...</pre>
         </div>
+        <h2 class="key-metrics">Complete file - comment mapping</h2>
+        <div id=table-wrapper>
+            <table id=comment-file-map>
+                <tr>
+                    <th>
+                        File
+                    </th>
+                    <th>
+                        Comment
+                    </th>
+                </tr>
+                {% for file, comment in all_files_comments %}
+                <tr>
+                    <td>{{ file }}</td>
+                    <td>{{ comment }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
         <script>
             Object.prototype.prettyPrint = function(){
                 let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
