@@ -64,7 +64,6 @@ class Comment:
         # consistency
         self.language = None
         self.unique_words_swr = None
-        self.synonyms = None
 
         # coherence
         self.coherence_coefficient = None
@@ -75,11 +74,10 @@ class Comment:
 
         Returns: List of attributes
         """
-        syn = self.synonyms if len(self.synonyms) > 0 else {}
         abbr = self.abbreviations if len(self.abbreviations) > 0 else {}
         return [self.id, self.path, self.line, self.type, self.handle, self.text, self.label, self.label_probability,
                 self.coherence_coefficient, self.question_marks, self.exclamation_marks,
                 self.processed_text, len(self.words), len(self.complex_words), len(self.syllables), len(self.sentences),
                 self.words, self.complex_words, self.syllables, self.sentences,
                 self.flesch_kincaid_grade_level, self.flesch_reading_ease_level, self.fog_index, abbr, len(abbr),
-                self.time_millis, self.language[0], self.language[1], syn, self.is_code, self.code_language]
+                self.time_millis, self.language[0], self.language[1], self.is_code, self.code_language]

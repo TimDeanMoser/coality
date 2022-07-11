@@ -2,12 +2,11 @@
 Fasttext binary classifier, overrides functions that differ between different classifiers
 """
 import os
-import pickle
 
 import fasttext
 
 # don't print fasttext's warnings
-# fasttext.FastText.eprint = lambda x: None
+fasttext.FastText.eprint = lambda x: None
 
 # labels = {
 #     "summary": "__label__summary",

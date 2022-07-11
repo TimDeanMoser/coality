@@ -40,7 +40,7 @@ from quality_assessment.src.comment_rater import main as rate
 TMP_PATH = r"quality_assessment/src/tmp"
 
 
-def main(project: str, output: str, models: str, syn: int, language: str, label: str):
+def main(project: str, output: str, models: str, language: str, label: str):
     """Combines the rater and evaluator classes and is the main entry point if you want to assess comment quality.
     Creates a json file with the data at the output location.
 
@@ -48,11 +48,10 @@ def main(project: str, output: str, models: str, syn: int, language: str, label:
         project: Path to directory of project to analyze.
         output: Path to output file.
         models: Path to directory holding the comment classification models.
-        syn: Argument for enabling the synonym analysis (0 or 1). Not recommended for large projects.
         language: Code language of files to be evaluated.
         label: Label (summary, usage, rationale, expand, warning) of comments to be evaluated.
     """
-    logging.info("Entering main() function with arguments: project: %s, output: %s, models: %s, syn: %d", project, output, models, syn)
+    logging.info("Entering main() function with arguments: project: %s, output: %s, models: %s", project, output, models)
     # check if 'project' is a valid directory
     if not os.path.isdir(project):
         logging.error("The project directory does not exist.")
@@ -78,7 +77,7 @@ def main(project: str, output: str, models: str, syn: int, language: str, label:
     logging.debug("Done with filter()")
 
     logging.debug("Calling evaluate()")
-    jsonRes = evaluate(project, output, filtered_comments_data, missing_comments_data, syn)
+    jsonRes = evaluate(project, output, filtered_comments_data, missing_comments_data)
     logging.debug("Done with evaluate()")
     
     # delete temporary files

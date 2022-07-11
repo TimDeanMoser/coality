@@ -35,7 +35,7 @@ class CommentExporter:
                                 "processed_text", "N_words", "N_complex_words", "N_syllables", "N_sentences",
                                 "words", "complex_words", "syllables", "sentences",
                                 "fkgls", "frel", "fi", "abbreviations", "N_abbreviations",
-                                "time_millis", "language", "language_proba", "synonyms", "is_code", "code_language"]
+                                "time_millis", "language", "language_proba", "is_code", "code_language"]
 
         self.missing_comments_header = ["path", "position", "handle", "type"]
 

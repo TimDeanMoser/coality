@@ -35,14 +35,11 @@ import re
 import sys
 import fasttext
 from Levenshtein import distance as levenshtein_distance
-from stemming.porter2 import stem
 
 from quality_assessment.src.comment_scraper import CommentScraper
 from quality_assessment.src.comment_exporter import CommentExporter
 from quality_assessment.src.tokenizer import Tokenizer
 from quality_assessment.src.comment_label_predictor import Predictor
-from nltk.corpus import wordnet as wn
-from nltk.corpus import stopwords
 
 
 class Rater:
@@ -71,7 +68,6 @@ class Rater:
         # load the natural language classification model
         self.language_model = fasttext.load_model(r'quality_assessment/data/lid.176.ftz')
         # save stopwords as a set
-        self.sw = set(stopwords.words('english'))
         # instantiate predictor with the given models
         self.predictor = Predictor(models)
 
@@ -107,8 +103,6 @@ class Rater:
             comment.flesch_kincaid_grade_level = self.get_flesch_kincaid_grade_level()
             comment.flesch_reading_ease_level = self.get_flesch_reading_ease_level()
             comment.language = self.get_language(comment.processed_text)
-            comment.unique_words_swr = self.get_unique_words_swr()
-            comment.synonyms = get_synonyms(comment.unique_words_swr)
             comment.is_code = is_commented_code(comment)
             # calculate and write processing time in milliseconds
             comment.time_millis = (datetime.datetime.now() - start_time).total_seconds() * 1000
@@ -172,37 +166,6 @@ class Rater:
         """
         prediction = self.language_model.predict(text)
         return prediction[0][0].split('__label__')[1], prediction[1][0]
-
-    def get_unique_words_swr(self):
-        """
-        Helper function to create a list of unique words without stopwords for the synonym analysis.
-
-        Returns: List of unique words in comment minus stopwords.
-        """
-        unique = list(set(self.tokenizer.words))
-        return [w for w in unique if w not in self.sw]
-
-
-def get_synonyms(words: list) -> dict:
-    """
-    Creates a list of synonyms for each word in a list of words using wordnet.
-
-    Args:
-        words: List of words to evaluate.
-
-    Returns:
-        Dict with words as keys and synonyms list as value.
-    """
-    res = {}
-    for word in words:
-        synets = wn.synsets(word)
-        tmp = []
-        for synset in synets:
-            for w in synset.lemma_names():
-                if "_" not in w and word != w and w not in tmp and stem(w) != stem(word):
-                    tmp.append(w)
-        res[word] = tmp
-    return res
 
 
 def remove_abbreviations(comment) -> str:

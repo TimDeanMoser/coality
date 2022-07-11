@@ -23,7 +23,7 @@ Evaluate the results of the rater class and generate a .json file from the analy
 For a smooth performance, make sure that the root of the repository is the working directory when running the script and use absolute paths as the arguments.
 
 Example:
-    $ python comment_evaluator.py C:\\my_project output.json C:\\found_comments.csv C:\\missing_comments.csv -syn 0
+    $ python comment_evaluator.py C:\\my_project output.json C:\\found_comments.csv C:\\missing_comments.csv
 """
 # import modules
 import argparse
@@ -33,19 +33,18 @@ import sys
 from typing import Optional
 import numpy as np
 import pandas as pd
-import ast
 import json
 
-DF_COLUMNS: list = ["type", "path", "position", "text", "code_language", "ignore", "matched_synonyms", "abbreviations",
+DF_COLUMNS: list = ["type", "path", "position", "text", "code_language", "ignore", "abbreviations",
                     "fkgls", "frel", "fi",
-                    "is_english", "is_code", "is_too_short", "is_too_long", "N_matched_synonyms", "N_exclamation",
+                    "is_english", "is_code", "is_too_short", "is_too_long", "N_exclamation",
                     "N_question", "N_abbreviations", "is_trivial", "is_unrelated", "count", "count_missing", "label",
                     "label_proba", "handle"]
 """Holds all the columns the resulting dataframe and .json will contain"""
 
 COLUMN_AGG: dict = {"fkgls": "mean", "frel": "mean", "fi": "mean",
                     "is_english": "sum", "is_code": "sum", "is_too_short": "sum", "is_too_long": "sum",
-                    "N_matched_synonyms": "sum", "N_exclamation": "sum",
+                    "N_exclamation": "sum",
                     "N_question": "sum", "N_abbreviations": "sum", "is_trivial": "sum", "is_unrelated": "sum",
                     "count": "sum",
                     "count_missing": "sum"}
@@ -87,13 +86,12 @@ class CommentEvaluator:
         # join the two dataframes and save
         self.df: pd.DataFrame = pd.merge(df, df_missing, how='outer')
 
-    def evaluate(self, output: str, syn: int):
+    def evaluate(self, output: str):
         """
         Main function that analyzes the dataframe and generates the .json file
 
         Args:
             output: Path to project directory.
-            syn: Enable synonym analysis (0 or 1). Not recommended for large projects
         """
         # create new columns with meta-data from the original csv's
         self.df["is_english"] = self.df.apply(lambda row: is_english(row), axis=1)
@@ -105,8 +103,6 @@ class CommentEvaluator:
         # set certain cols to 'None' as they should not be considered when aggregating into sums/means
         self.nan_ignored_means()
         self.nan_ignored_sums()
-        # evaluate the found synonyms
-        self.evaluate_synonyms(syn)
         # drop any columns not needed
         self.df.drop(self.df.columns.difference(DF_COLUMNS), 1, inplace=True)
         # generate the results object
@@ -220,61 +216,6 @@ class CommentEvaluator:
             d["comments"] = self.get_file_comments(path.replace("\\", "/"))
         return d
 
-    def evaluate_synonyms(self, syn: int):
-        """
-        Evaluate the use of synonyms in a comment on a file scope.
-        Take note if the synonym of a word in a comment is used in another comment in the same file.
-        Due to its inherently high complexity it is not recommended to run this analysis on big projects.
-        Args:
-            syn: Flag for enabling this analysis (0 or 1)
-        Returns:
-            Adds the matched synonyms and tracks their count in the df of this class
-        """
-        self.df["matched_synonyms"] = self.df.apply(lambda x: [], axis=1)
-        self.df["N_matched_synonyms"] = self.df.apply(lambda x: 0, axis=1)
-        # escape if synonym analysis is disabled
-        if syn == 0:
-            return
-        # group comments by file, since we want to look at matches in a file scope
-        by_file = self.df.groupby('path')
-        # for every file
-        for file_name, group in by_file:
-            # for every comment in file
-            for row_index, row in group.iterrows():
-                # disregard ignored comments for evaluation
-                if row["ignore"]:
-                    continue
-                pos = row["position"]
-                # get the synonyms
-                dict = ast.literal_eval(row["synonyms"])
-                res_syn = []
-                N_syn = 0
-                # for every word in comment
-                for key in dict:
-                    # compare to every other comments' words synonyms in file
-                    for row_index2, row2 in group.iterrows():
-                        # disregard ignored comments for lookup
-                        if row2["ignore"]:
-                            continue
-                        pos2 = row2["position"]
-                        dict2 = ast.literal_eval(row2["synonyms"])
-                        # for every synonym in the look up comment
-                        for key2 in dict2:
-                            # original word in list of synonyms of another word in file
-                            if key != key2 and key in dict2[key2]:
-                                res_syn.append({
-                                    'word': key,
-                                    'synonym': key2,
-                                    'pos_word': pos,
-                                    'pos_synonym': pos2
-                                })
-                                # increment count
-                                N_syn = N_syn + 1
-                # write values to df
-                self.df.at[row_index, "N_matched_synonyms"] = N_syn
-                self.df.at[row_index, "matched_synonyms"] = res_syn
-                logging.debug(row["N_matched_synonyms"], ":", row["matched_synonyms"])
-
 
 def is_ignore(row) -> bool:
     """
@@ -377,7 +318,7 @@ def get_value(d, key):
     return d[key].values[0] if len(d[key].values) > 0 else None
 
 
-def main(project: str, output: str, comments: str, missing_comments: str, syn: int):
+def main(project: str, output: str, comments: str, missing_comments: str):
     """
     Evaluate the results of the rater class.
 
@@ -386,7 +327,6 @@ def main(project: str, output: str, comments: str, missing_comments: str, syn: i
         output: Path to output file.
         comments: Path to .csv with all found comments of the rater.
         missing_comments: Path to .csv with all missing comments found by the rater.
-        syn: Flag for synonym analysis (0 or 1). Not recommended for big projects.
 
     Returns:
         Creates a .json file at the output location.
@@ -398,7 +338,7 @@ def main(project: str, output: str, comments: str, missing_comments: str, syn: i
     # instantiate evaluator
     c = CommentEvaluator(project, comments, missing_comments)
     # evaluate missing and found comments
-    return c.evaluate(output, syn)
+    return c.evaluate(output)
 
 
 if __name__ == '__main__':
@@ -415,12 +355,6 @@ if __name__ == '__main__':
 
     parser.add_argument('missing_comments', metavar='Missing_Comments', type=str,
                         help='Path to the scraped missing comments .csv')
-
-    # optional arguments
-    parser.add_argument("-syn", "--synonyms", type=int, help="Enable synonym analysis of comments in files. Not "
-                                                             "recommended for big projects due to complexity. [0 ("
-                                                             "default), 1].",
-                        choices=[0, 1], default=0)
 
     levels = {
         'critical': logging.CRITICAL,
@@ -440,6 +374,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
                         level=level, stream=sys.stdout)
     # run main function
-    main(args.project.replace("\\", "/"), args.output, args.comments, args.missing_comments, args.synonyms)
+    main(args.project.replace("\\", "/"), args.output, args.comments, args.missing_comments)
 
     exit()

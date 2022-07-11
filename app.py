@@ -39,10 +39,11 @@ def rate():
     repo_name = git.split("/")[-1]
     project_path = f"projects/{repo_name}_{timestamp}"
     Repo.clone_from(git, project_path, depth=1)
-    res = evaluate(project_path, './outputs/example_output.json', "./quality_assessment/data/models", 0, "", "")
+    res = evaluate(project_path, './outputs/example_output.json', "./quality_assessment/data/models", "", "")
     delete_repo(project_path)
     return res
 
 
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
