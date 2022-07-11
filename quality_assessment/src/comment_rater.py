@@ -37,13 +37,10 @@ import fasttext
 from Levenshtein import distance as levenshtein_distance
 from stemming.porter2 import stem
 
-sys.path.append('classification/src/classifiers')
-sys.path.append('classification/src/')
-
 from quality_assessment.src.comment_scraper import CommentScraper
 from quality_assessment.src.comment_exporter import CommentExporter
 from quality_assessment.src.tokenizer import Tokenizer
-from classification.src.predictor import Predictor
+from quality_assessment.src.comment_label_predictor import Predictor
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 

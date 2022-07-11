@@ -1,98 +1,48 @@
-"""Coality - Web frontend functionality"""
-import json
-import random
-import string
-import subprocess
-import glob
+import os
+import shutil
+import stat
 from datetime import datetime
-from flask import Flask
-from flask import render_template, request, flash, send_file
-from git import Repo, rmtree
-from json_extract import get_files_comments
+from subprocess import call
+
+from flask import Flask, request
+from git import Repo
+
+from quality_assessment.src.main import main as evaluate
 
 app = Flask(__name__)
-app.secret_key = "".join(random.choices(string.ascii_letters + string.digits, k=12))
 
-@app.route("/")
-@app.route("/home")
-def home():
-    """Initial page rendering"""
-    return render_template(
-        "index.html",
-        json_files=glob.glob1("outputs/", "*.json")
-        )
 
-@app.route("/result", methods=["POST"])
-def create_result():
-    """Handles form submission + sending the JSON output data to the results page"""
-    # First process certain form data and create timestamp
-    comment_label = request.form["comment_label"]
-    comment_language = request.form["language"]
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    # Check if a valid project path is specified; redundant feature?
-    if "project_path" in request.form and request.form["project_path"].strip() != "":
-        project_path = request.form["project_path"]
-        repo_name = project_path.split("/")[-1]
-    # Check if valid git URL provided
-    elif "git_url" in request.form and request.form["git_url"].strip() != "":
-        repo_name = request.form["git_url"].split("/")[-1]
-        project_path = f"projects/{repo_name}_{timestamp}"
-        Repo.clone_from(request.form["git_url"], project_path)
+def on_rm_error(func, path, exc_info):
+    os.chmod(path, stat.S_IWRITE)
+    os.unlink(path)
+
+
+def delete_repo(repo_path):
+    for i in os.listdir(repo_path):
+        if i.endswith('git'):
+            tmp = os.path.join(repo_path, i)
+            while True:
+                call(['attrib', '-H', tmp])
+                break
+            shutil.rmtree(tmp, onerror=on_rm_error)
+    shutil.rmtree(repo_path)
+
+
+@app.route('/rate', methods=['GET'])
+def rate():
+    if 'git' in request.args:
+        git = str(request.args['git'])
     else:
-        flash("Error: No git URL or project path specified.")
-        return render_template("index.html")
-    # Run the main.py script to generate the output as a json file
-    try:
-        subprocess.run(f"""python3 quality_assessment/src/main.py {project_path}
-        outputs/{repo_name}_{timestamp}.json
-        models/
-        --label {comment_label}
-        --language {comment_language}""".split(),
-        check=True)
-    except subprocess.CalledProcessError:
-        flash("An error occurred. Try checking your project path.")
-    # Delete the cloned repo once finished
-    rmtree(project_path)
-    # Load the JSON output and send it to the results page
-    filename = f"{repo_name}_{timestamp}.json"
-    with open(f"outputs/{filename}", encoding="utf-8") as json_data:
-        json_output = json.load(json_data)
-    all_files_comments = get_files_comments(json_output)
+        return "Error: No git field provided. Please specify a git url."
 
-    return render_template(
-        "results.html",
-        json_data=json.dumps(json_output),
-        all_files_comments = all_files_comments,
-        json_file_name=filename,
-        total_files=len({uniq_file for uniq_file, comment in all_files_comments}),
-        fox_index = json_output["fi"],
-        frel = json_output["frel"],
-        fkgls = json_output["fkgls"],
-        total_comments=len([comment for file, comment in all_files_comments])
-        )
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    repo_name = git.split("/")[-1]
+    project_path = f"projects/{repo_name}_{timestamp}"
+    Repo.clone_from(git, project_path, depth=1)
+    res = evaluate(project_path, './outputs/example_output.json', "./quality_assessment/data/models", 0, "", "")
+    delete_repo(project_path)
+    return res
 
-@app.route("/result/<filename>", methods=["GET"])
-def result_fetch(filename):
-    """Retrieve the data of a specified JSON file and render it in the results page"""
-    with open(f"outputs/{filename}", encoding="utf-8") as json_data:
-        json_output = json.load(json_data)
-    all_files_comments = get_files_comments(json_output)
-    return render_template(
-        "results.html",
-        json_data=json.dumps(json_output),
-        all_files_comments = all_files_comments,
-        json_file_name=filename,
-        total_files=len({uniq_file for uniq_file, comment in all_files_comments}),
-        fox_index = json_output["fi"],
-        frel = json_output["frel"],
-        fkgls = json_output["fkgls"],
-        total_comments=len([comment for file, comment in all_files_comments])
-        )
 
-@app.route("/result/download/<filename>", methods=["GET", "POST"])
-def download_json(filename):
-    """Simple download file function"""
-    return send_file(f"outputs/{filename}", as_attachment=True)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    app.run()

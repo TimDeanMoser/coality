@@ -34,7 +34,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import ast
-import simplejson as simplejson
+import json
 
 DF_COLUMNS: list = ["type", "path", "position", "text", "code_language", "ignore", "matched_synonyms", "abbreviations",
                     "fkgls", "frel", "fi",
@@ -112,8 +112,9 @@ class CommentEvaluator:
         # generate the results object
         result = self.path_to_dict(self.project_dir)
         # dump result as json to output file
-        with open(output, 'w') as f:
-            simplejson.dump(result, f, ignore_nan=True)
+        # with open(output, 'w') as f:
+        #     simplejson.dump(result, f, ignore_nan=True)
+        return json.dumps(result, indent=4)
 
     def nan_ignored_means(self):
         """Helper Function to set all ignored row's meaned values to NaN to ignore them in the aggregation"""
@@ -397,7 +398,7 @@ def main(project: str, output: str, comments: str, missing_comments: str, syn: i
     # instantiate evaluator
     c = CommentEvaluator(project, comments, missing_comments)
     # evaluate missing and found comments
-    c.evaluate(output, syn)
+    return c.evaluate(output, syn)
 
 
 if __name__ == '__main__':

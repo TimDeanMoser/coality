@@ -1,6 +1,2 @@
 /venv !tmp/.gitkeep /.idea
-/data/binary_data_sets/* /results/old_results
-models/
-outputs/
-projects/
-
+/srcml_1.0.0-1_win.exe

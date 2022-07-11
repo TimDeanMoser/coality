@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+from quality_assessment.src.fasttext_label_predictor import FasttextLabelPredictor
 
 """
 Entry point for predicting a string's label using the models provided. Prints prediction to console.
@@ -28,7 +29,6 @@ Example:
 import argparse
 import logging
 import os
-import pickle
 import sys
 
 from joblib import parallel_backend
@@ -53,9 +53,7 @@ class Predictor:
         self.classifiers = []
         for filename in os.listdir(model_dir):
             if filename.endswith(".model"):
-                with open(os.path.join(model_dir, filename), 'rb') as f:
-                    p = pickle.load(f)
-                    self.classifiers.append(p)
+                self.classifiers.append(FasttextLabelPredictor(os.path.join(model_dir, filename)))
 
     def predict(self, text, verbose):
         """
@@ -81,7 +79,7 @@ def main(models, text, verbose):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Train a model on a data-set')
+    parser = argparse.ArgumentParser(description='Predict the label of a string')
 
     parser.add_argument('models', metavar='Models', type=str,
                         help='Path to the directory containing the trained models.')

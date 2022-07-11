@@ -30,10 +30,12 @@ import argparse
 import logging
 import os
 import sys
+
 # import evaluator, filter, and rater mains
 from quality_assessment.src.comment_evaluator import main as evaluate
 from quality_assessment.src.comment_filter import main as filter
 from quality_assessment.src.comment_rater import main as rate
+
 # path to the temporary files folder
 TMP_PATH = r"quality_assessment/src/tmp"
 
@@ -76,7 +78,7 @@ def main(project: str, output: str, models: str, syn: int, language: str, label:
     logging.debug("Done with filter()")
 
     logging.debug("Calling evaluate()")
-    evaluate(project, output, filtered_comments_data, missing_comments_data, syn)
+    jsonRes = evaluate(project, output, filtered_comments_data, missing_comments_data, syn)
     logging.debug("Done with evaluate()")
     
     # delete temporary files
@@ -85,6 +87,7 @@ def main(project: str, output: str, models: str, syn: int, language: str, label:
     os.remove(filtered_comments_data)
 
     logging.info("Done. View output file at %s", output)
+    return jsonRes
 
 
 if __name__ == '__main__':
@@ -97,22 +100,6 @@ if __name__ == '__main__':
     parser.add_argument('output', metavar='Output', type=str,
                         help='Path for the output .json file')
 
-    parser.add_argument('models', metavar='Models', type=str,
-                        help='Path to the directory of the trained models for comment type classification.')
-    # optional arguments
-    parser.add_argument("-syn", "--synonyms", type=int, help="Enable synonym analysis of comments in files. Not "
-                                                             "recommended for big projects due to complexity. [0 ("
-                                                             "default), 1].",
-                        choices=[0, 1], default=0)
-    labels = {
-        'summary': "__label__summary",
-        'expand': "__label__expand",
-        'usage': "__label__usage",
-        'rationale': "__label__rational",
-        'warning': "__label__warning",
-        'any': ""
-    }
-    parser.add_argument("-label", "--label", default="any", help=("Filter by comment type. Example --label summary, default='any'"), choices=labels.keys())
     languages = {
         'c': "C",
         'c++': "C++",
@@ -139,6 +126,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s -%(levelname)s- [%(filename)s:%(lineno)d] \n \t %(message)s',
                         level=level, stream=sys.stdout)
     # call main()
-    main(args.project.replace("\\", "/"), args.output, args.models, args.synonyms, languages[args.language], labels[args.label])
+    main(args.project.replace("\\", "/"), args.output, "./quality_assessment/data/models", 0, languages[args.language], "")
 
     exit()
