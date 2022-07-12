@@ -320,9 +320,6 @@ def main(project: str, output: str, models: str):
         the missing comments' data.
     """
 
-    # import and update/download the wordnet data
-    import nltk
-    nltk.download('wordnet')
     # check if project is a proper directory
     if not os.path.isdir(project):
         logging.error("The project directory does not exist.")
