@@ -8,3 +8,5 @@ joblib~=1.0.1
 GitPython
 waitress
 requests
+flask-cors
+simplejson

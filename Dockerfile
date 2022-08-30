@@ -21,5 +21,5 @@ RUN ./setup.sh
 ENV PYTHONPATH="${PYTHONPATH}:/$PROJECT_PATH"
 CMD ["python3", "app.py"]
 #docker build -t coality:latest .
-#docker run -d -p 5000:5000 --name=coality-container coality python3 app.py
+#docker run -t -p 443:5000 --rm --name=coality-container coality python3 app.py
 #docker exec -it coality-container sh

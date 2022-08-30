@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import requests
@@ -5,12 +6,15 @@ import stat
 from datetime import datetime
 
 from flask import Flask, request
+from flask_cors import cross_origin
 from git import Repo
 from waitress import serve
 
 from quality_assessment.src.main import main as evaluate
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.WARNING)
+
 
 class CloneException(Exception):
     pass
@@ -36,6 +40,7 @@ def delete_repo(repo_path):
 
 
 @app.route('/rate', methods=['GET'])
+@cross_origin()
 def rate():
     if 'git' in request.args:
         git = str(request.args['git'])
@@ -75,7 +80,9 @@ def rate():
     else:
         return res
     finally:
-        delete_repo(project_path)
+        # FIXME uncomment for prod
+        # delete_repo(project_path)
+        print("delete repos please")
 
 
 if __name__ == '__main__':

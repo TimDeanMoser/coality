@@ -37,7 +37,7 @@ class CommentExporter:
                                 "fkgls", "frel", "fi", "abbreviations", "N_abbreviations",
                                 "time_millis", "language", "language_proba", "is_code", "code_language"]
 
-        self.missing_comments_header = ["path", "position", "handle", "type"]
+        self.missing_comments_header = ["id", "path", "position", "handle", "type"]
 
     def export_comments(self, comments: list, path: str):
         """
@@ -69,4 +69,4 @@ class CommentExporter:
             writer = csv.writer(csv_file, delimiter=',')
             writer.writerow(self.missing_comments_header)
             for c in comments:
-                writer.writerow([c["file"], c["pos"], c["name"], c["type"]])
+                writer.writerow([c["id"], c["file"], c["pos"], c["name"], c["type"]])

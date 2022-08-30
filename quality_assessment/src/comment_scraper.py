@@ -60,7 +60,8 @@ class CommentScraper:
         try:
             doc = xml.parse(os.path.join(dir, "export.xml"))
         except FileNotFoundError:
-            logging.error("srcML needs to be installed and added to PATH or this script has no access to the target directory.")
+            logging.error(
+                "srcML needs to be installed and added to PATH or this script has no access to the target directory.")
 
         # get all files found
         files = doc.getElementsByTagName("unit")
@@ -119,9 +120,10 @@ class CommentScraper:
             children = [child for child in children if child.nodeType == 1]
             # first element should be a (license) comment in every file
             if children[0].tagName != "comment":
-                missing_comments.append({"file": file_path, "pos": '1:1', "name": "", "type": "header"})
+                missing_comments.append({"file": file_path, "pos": '1:1', "name": "", "type": "header", "id": self.id})
+                self.id += 1
             # get other missing comments
-            missing_comments += get_missing_comments(children, file_path)
+            missing_comments += get_missing_comments(children, file_path, self.id)
         # delete temporary srcML file
         os.remove(os.path.join(dir, "export.xml"))
         return {"comments": found_comments, "missing_comments": missing_comments}
@@ -145,11 +147,12 @@ def get_handle(e) -> str:
     return name
 
 
-def get_missing_comments(c, file_path: str) -> list:
+def get_missing_comments(c, file_path: str, id: int) -> list:
     """
     Recursive function for checking a srcML XML for elements that lack a comment.
 
     Args:
+        id: id of scraper
         c: children of an XML element
         file_path: path of comment for writing.
 
@@ -168,11 +171,12 @@ def get_missing_comments(c, file_path: str) -> list:
                 line = children[i].getAttribute("pos:start")
                 # add missing comment
                 missing_comments.append(
-                    {"file": file_path, "pos": line, "name": name, "type": children[i].tagName})
+                    {"file": file_path, "pos": line, "name": name, "type": children[i].tagName, "id": id})
+                id += 1
                 # recursive call
                 try:
                     missing_comments += get_missing_comments(children[i].getElementsByTagName("block")[0].childNodes,
-                                                             file_path)
+                                                             file_path, id)
                 except IndexError:
                     pass
     return missing_comments

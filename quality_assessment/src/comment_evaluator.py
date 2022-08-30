@@ -17,6 +17,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
+from datetime import datetime
+
+import simplejson
 
 """
 Evaluate the results of the rater class and generate a .json file from the analysis' result.
@@ -103,14 +106,12 @@ class CommentEvaluator:
         # set certain cols to 'None' as they should not be considered when aggregating into sums/means
         self.nan_ignored_means()
         self.nan_ignored_sums()
-        # drop any columns not needed
-        self.df.drop(self.df.columns.difference(DF_COLUMNS), 1, inplace=True)
         # generate the results object
         result = self.path_to_dict(self.project_dir)
         # dump result as json to output file
         # with open(output, 'w') as f:
         #     simplejson.dump(result, f, ignore_nan=True)
-        return json.dumps(result, indent=4)
+        return simplejson.dumps(result, ignore_nan=True, default=datetime.isoformat)
 
     def nan_ignored_means(self):
         """Helper Function to set all ignored row's meaned values to NaN to ignore them in the aggregation"""
@@ -169,10 +170,7 @@ class CommentEvaluator:
         result = []
         # loop through filtered df and append all comments as dicts
         for index, row in df.iterrows():
-            comment = {}
-            for key in DF_COLUMNS:
-                comment[key] = row[key]
-            result.append(comment)
+            result.append(row.to_dict())
         return result
 
     def path_to_dict(self, path: str) -> Optional[dict]:
