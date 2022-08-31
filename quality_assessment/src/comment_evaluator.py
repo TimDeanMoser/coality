@@ -173,31 +173,36 @@ class CommentEvaluator:
             result.append(row.to_dict())
         return result
 
-    def path_to_dict(self, path: str) -> Optional[dict]:
+    def path_to_dict(self, path: str, name_prefix="") -> Optional[dict]:
         """
         Recursive function to generate a dict mimicking the local directory structure of a project with all directories
         and files containing any comments. Comments contain all their data and Files/Directories the aggregated values
         of all comments in them
         Args:
+            name_prefix: Inherited name prefix for collapsing long folder chains (e.g. /java/main/src/...)
             path: Path to get structure from
-
         Returns:
             d: Dictionary containing all (aggregated) data of comments/files/directories under path
         """
         # get filename
-        d = {'name': os.path.basename(path)}
+        filename = os.path.basename(path)
         # if path is a directory get all children recursively
+        d = {'name': filename}
         if os.path.isdir(path):
-            d['structure'] = "directory"
+            d = {'name': name_prefix + filename, 'structure': "directory", 'children': []}
             # aggregate all data under directory
             self.write_agg_values(d, path.replace("\\", "/"))
-            d['children'] = []
             # list of all paths under directory
             paths = [os.path.join(path, x) for x in os.listdir(path)]
+            # check if one one child and is directory
+            if len(paths) == 1 and os.path.isdir(paths[0]):
+                # skip directory chain link and add name as prefix
+                name_prefix += ((" / " if len(name_prefix) > 0 else "") + filename)
+                return self.path_to_dict(paths[0], name_prefix)
             # append all children containing at least one valid file
             for p in paths:
                 # recursive call
-                c = self.path_to_dict(p)
+                c = self.path_to_dict(p, name_prefix)
                 if c is not None:
                     d['children'].append(c)
             if not d['children']:

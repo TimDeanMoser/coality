@@ -54,7 +54,6 @@ def rate():
 
         r = requests.get(url=f"https://api.github.com/repos/{git_user}/{repo_name}")
         repo_info = r.json()
-        print(repo_info)
     except:
         return "Error: Repository not found. Invalid link or lacking permission", 404
 
