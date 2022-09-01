@@ -96,6 +96,9 @@ class CommentEvaluator:
         Args:
             output: Path to project directory.
         """
+        # catch if no supported files / languages in project
+        if self.df.empty:
+            return None
         # create new columns with meta-data from the original csv's
         self.df["is_english"] = self.df.apply(lambda row: is_english(row), axis=1)
         self.df["is_too_short"] = self.df.apply(lambda row: is_too_short(row), axis=1)

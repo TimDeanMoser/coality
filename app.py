@@ -54,6 +54,8 @@ def rate():
 
         r = requests.get(url=f"https://api.github.com/repos/{git_user}/{repo_name}")
         repo_info = r.json()
+        if "message" in repo_info and repo_info["message"] == "Not Found":
+            raise Exception
     except:
         return "Error: Repository not found. Invalid link or lacking permission", 404
 
@@ -72,16 +74,17 @@ def rate():
         except:
             raise CloneException
         res = evaluate(project_path, './outputs/example_output.json', "./quality_assessment/data/models", "", "")
+        if res is None:
+            return "No supported files to evaluate found in project. For now only Java, C, C++ and C# are supported.", 204
     except CloneException as ce:
         return "Error: Could not clone your repository, invalid link or lacking permissions", 400
     except Exception as e:
+        logging.error(e)
         return "Error, could not evaluate your repo", 500
     else:
         return res
     finally:
-        # FIXME uncomment for prod
-        # delete_repo(project_path)
-        print("delete repos please")
+        delete_repo(project_path)
 
 
 if __name__ == '__main__':
