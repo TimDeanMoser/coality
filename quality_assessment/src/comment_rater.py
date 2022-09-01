@@ -83,7 +83,10 @@ class Rater:
             # save start_time for calculating processing time later
             start_time = datetime.datetime.now()
             # set abbreviations as the intersection of the words and the abbreviation set
-            comment.abbreviations = set(re.split(r"\s+", comment.text)).intersection(self.abbreviations.keys())
+            comment.abbreviations = {}
+            for word in set(re.split(r"\s+", comment.text)):
+                if word in self.abbreviations.keys():
+                    comment.abbreviations[word] = self.abbreviations[word]
             # preprocess comment
             preprocess(comment)
             # predict label of comment
